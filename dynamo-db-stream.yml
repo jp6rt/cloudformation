@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Dynamo DB table with dynamodb stream enabled on newly created items
+Parameters:
+  ApplicationName:
+    Type: String
+    Default: jp6rt-cf
+    Description: Application Name Reference
+
+Resources:
+  TemplateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${ApplicationName}-ref
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: createdAt
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+Outputs:
+  TableARN:
+    Description: Table ARN
+    Value: !GetAtt TemplateTable.Arn
+    Export:
+      Name: !Sub ${ApplicationName}-template-table-arn
+  TableStreamARN:
+    Description: Table Stream ARN
+    Value: !GetAtt TemplateTable.StreamArn
+    Export:
+      Name: !Sub ${ApplicationName}-template-table-stream-arn

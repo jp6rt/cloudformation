@@ -1,2 +1,2 @@
 # cloudformation
-Cloudformation templates
+Cloudformation reference templates

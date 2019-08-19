@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Message service SNS template
+Parameters:
+  ApplicationName:
+    Type: String
+    Default: jp6rt-cf
+    Description: Application Name Reference
+  Region:
+    Type: String
+    Default: ap-southeast-1
+    Description: Region
+  SMSEndpoint:
+    Type: String
+    Default: +639452743660
+    Description: SMS Number
+  EmailEndpoint:
+    Type: String
+    Default: jp01r7@gmail.com
+    Description: Email address
+
+Resources:
+  TemplateTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${ApplicationName}-template
+  EmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref TemplateTopic
+      Protocol: email
+      Endpoint: !Ref EmailEndpoint
+      Region: !Ref Region
+  SMSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref TemplateTopic
+      Protocol: sms
+      Endpoint: !Ref SMSEndpoint
+      Region: !Ref Region
+Outputs:
+  TopicARN:
+    Description: Topic ARN
+    Value: !Ref TemplateTopic
+    Export:
+      Name: !Sub ${ApplicationName}-template-topic
