@@ -1,5 +1,60 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
-  Daily feedback requests due date check definition
+  Definition for daily event scheduler
+Parameters:
+  EventStack:
+    Type: String
+    Default: jp6rt-cf-event
+    Description: Stack reference for the cloudwatch daily event
+  APIService:
+    Type: String
+    Default: https://api.jp6rt.io/handler
+    Description: API Service handler for published topics
 
 Resources:
+  DailyEventTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${EventStack}-topic
+  EventTopicPolicy:
+    Type: 'AWS::SNS::TopicPolicy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: 'sns:Publish'
+            Resource: '*'
+      Topics:
+        - !Ref DailyEventTopic
+  FeedbackSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref DailyEventTopic
+      Protocol: https
+      Endpoint: !Ref APIService
+      Region: !Ref AWS::Region
+  TestSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref DailyEventTopic
+      Protocol: email
+      Endpoint: j.resuento@arcanys.com
+      Region: !Ref AWS::Region
+  DailyEvent:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Emit an event on weekdays at 5 AM
+      Name: !Sub ${EventStack}-topic
+      State: ENABLED
+      ScheduleExpression: cron(0 21 ? * SUN-THU *)
+      Targets:
+        - Arn: !Ref DailyEventTopic
+          Id: "DailyEventTopic"
+Outputs:
+  TopicARN:
+    Description: Daily Event Topic ARN
+    Value: !Ref DailyEventTopic
+    Export:
+      Name: !Sub ${EventStack}-topic
