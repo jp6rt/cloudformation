@@ -2,16 +2,16 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   Dynamo DB table with dynamodb stream enabled on newly created items
 Parameters:
-  ApplicationName:
+  ApplicationStack:
     Type: String
     Default: jp6rt-cf
-    Description: Application Name Reference
+    Description: Application Stack Reference
 
 Resources:
   TemplateTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${ApplicationName}-ref
+      TableName: !Sub ${ApplicationStack}-ref
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -32,9 +32,9 @@ Outputs:
     Description: Table ARN
     Value: !GetAtt TemplateTable.Arn
     Export:
-      Name: !Sub ${ApplicationName}-template-table-arn
+      Name: !Sub ${ApplicationStack}-template-table-arn
   TableStreamARN:
     Description: Table Stream ARN
     Value: !GetAtt TemplateTable.StreamArn
     Export:
-      Name: !Sub ${ApplicationName}-template-table-stream-arn
+      Name: !Sub ${ApplicationStack}-template-table-stream-arn

@@ -2,10 +2,10 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   Message service SNS template
 Parameters:
-  ApplicationName:
+  ApplicationStack:
     Type: String
     Default: jp6rt-cf
-    Description: Application Name Reference
+    Description: Application Stack Reference
   Region:
     Type: String
     Default: ap-southeast-1
@@ -23,7 +23,7 @@ Resources:
   TemplateTopic:
     Type: AWS::SNS::Topic
     Properties:
-      DisplayName: !Sub ${ApplicationName}-template
+      DisplayName: !Sub ${ApplicationStack}-template
   EmailSubscription:
     Type: AWS::SNS::Subscription
     Properties:
@@ -43,4 +43,4 @@ Outputs:
     Description: Topic ARN
     Value: !Ref TemplateTopic
     Export:
-      Name: !Sub ${ApplicationName}-template-topic
+      Name: !Sub ${ApplicationStack}-template-topic
