@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Describe the vpc here and its network architecture
+
+Resources:
+  CFVPC:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: 172.31.0.0/16
+      EnableDnsHostnames: false
+      EnableDnsSupport: false
+      Tags:
+        -
+          Key: Name
+          Value: vpc-cf
