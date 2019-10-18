@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Describe the RDS instance and its properties
+
+Parameters:
+  Environment:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+    Default: development
+
+Resources:
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      AllowMajorVersionUpgrade: true
+      BackupRetentionPeriod: 7
+      DBInstanceClass: db.t2.micro
+      Engine: mariadb
+      EngineVersion: 10.3
+      MasterUsername: root
+      MasterUserPassword: thequickbrownfox
+      MultiAZ: false
+      PubliclyAccessible: false
+      Tags:
+        - Key: Name
+          Value: ${Environment}-${AWS::StackName}-db-instance
