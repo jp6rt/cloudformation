@@ -13,25 +13,20 @@ Parameters:
     Default: 10.1.0.0/16
 
 Resources:
-  EC2SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  DbSecurityByEC2SecurityGroup:
+    Type: AWS::RDS::DBSecurityGroup
     Properties:
-      GroupDescription: Allow mysql connection inside vpc
-      VpcId: 
+      GroupDescription: Description for the DB security group
+      DBSecurityGroupIngress:
+        - 
+          CIDRIP: !Ref VPCCidr
+      EC2VpcId: 
         Fn::ImportValue:
           !Sub ${NetworkStackName}-vpc
-      SecurityGroupIngress:
+      Tags:
         - 
-          IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-          CidrIp: !Ref VPCCidr
-      SecurityGroupEgress:
-        - 
-          IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-          CidrIp: !Ref VPCCidr
+          Key: Name
+          Value: !Sub ${AWS::StackName}-db-sg
 
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
