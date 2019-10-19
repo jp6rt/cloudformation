@@ -3,10 +3,6 @@ Description: >-
   Describe the vpc here and its network architecture
 
 Parameters:
-  Environment:
-    Description: An environment name that will be prefixed to resource names
-    Type: String
-    Default: development
   VPCCIDR:
     Description: IP range (CIDR notation) for this VPC
     Type: String
@@ -46,7 +42,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-vpc
+          Value: !Sub ${AWS::StackName}-vpc
 
   PublicSubnetA:
     Type: AWS::EC2::Subnet
@@ -58,7 +54,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-pubsubA
+          Value: !Sub ${AWS::StackName}-pubsubA
 
   PublicSubnetB:
     Type: AWS::EC2::Subnet
@@ -70,7 +66,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-pubsubB
+          Value: !Sub ${AWS::StackName}-pubsubB
 
   PublicSubnetC:
     Type: AWS::EC2::Subnet
@@ -82,7 +78,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-pubsubC
+          Value: !Sub ${AWS::StackName}-pubsubC
 
   PrivateSubnetA:
     Type: AWS::EC2::Subnet
@@ -94,7 +90,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-privsubA
+          Value: !Sub ${AWS::StackName}-privsubA
 
   PrivateSubnetB:
     Type: AWS::EC2::Subnet
@@ -106,7 +102,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-privsubB
+          Value: !Sub ${AWS::StackName}-privsubB
 
   PrivateSubnetC:
     Type: AWS::EC2::Subnet
@@ -118,7 +114,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-privsubC
+          Value: !Sub ${AWS::StackName}-privsubC
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -126,7 +122,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-ig
+          Value: !Sub ${AWS::StackName}-ig
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -140,7 +136,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub ${Environment}-${AWS::StackName}-public-route
+          Value: !Sub ${AWS::StackName}-public-route
 
   DefaultPublicRoute:
     Type: AWS::EC2::Route
@@ -173,19 +169,19 @@ Outputs:
     Description: Reference to the created VPC
     Value: !Ref VPC
     Export:
-      Name: !Sub ${Environment}-${AWS::StackName}-vpc
+      Name: !Sub ${AWS::StackName}-vpc
   PublicSubnetA:
     Description: Reference to the public subnet in AZ1
     Value: !Ref PublicSubnetA
     Export:
-      Name: !Sub ${Environment}-${AWS::StackName}-pubsubA
+      Name: !Sub ${AWS::StackName}-pubsubA
   PublicSubnetB:
     Description: Reference to the public subnet in AZ2
     Value: !Ref PublicSubnetB
     Export:
-      Name: !Sub ${Environment}-${AWS::StackName}-pubsubB
+      Name: !Sub ${AWS::StackName}-pubsubB
   PublicSubnetC:
     Description: Reference to the public subnet in AZ3
     Value: !Ref PublicSubnetC
     Export:
-      Name: !Sub ${Environment}-${AWS::StackName}-pubsubC
+      Name: !Sub ${AWS::StackName}-pubsubC
