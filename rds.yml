@@ -33,21 +33,6 @@ Resources:
           ToPort: 3306
           CidrIp: !Ref VPCCidr
 
-  DbSecurityByEC2SecurityGroup:
-    Type: AWS::RDS::DBSecurityGroup
-    Properties:
-      GroupDescription: Description for the DB security group
-      DBSecurityGroupIngress:
-        - 
-          EC2SecurityGroupId: !Ref EC2SecurityGroup
-      EC2VpcId: 
-        Fn::ImportValue:
-          !Sub ${NetworkStackName}-vpc
-      Tags:
-        - 
-          Key: Name
-          Value: !Sub ${AWS::StackName}-db-sg
-
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
