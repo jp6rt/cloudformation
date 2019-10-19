@@ -185,3 +185,18 @@ Outputs:
     Value: !Ref PublicSubnetC
     Export:
       Name: !Sub ${AWS::StackName}-pubsubC
+  PrivateSubnetA:
+    Description: Reference to the private subnet in AZ1
+    Value: !Ref PrivateSubnetA
+    Export:
+      Name: !Sub ${AWS::StackName}-privsubA
+  PrivateSubnetB:
+    Description: Reference to the private subnet in AZ2
+    Value: !Ref PrivateSubnetB
+    Export:
+      Name: !Sub ${AWS::StackName}-privsubB
+  PrivateSubnetC:
+    Description: Reference to the private subnet in AZ3
+    Value: !Ref PrivateSubnetC
+    Export:
+      Name: !Sub ${AWS::StackName}-privsubC

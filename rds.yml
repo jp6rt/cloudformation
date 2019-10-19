@@ -3,12 +3,63 @@ Description: >-
   Describe the RDS instance and its properties
 
 Parameters:
-  Environment:
-    Description: An environment name that will be prefixed to resource names
+  NetworkStackName:
+    Description: Network stack name reference
     Type: String
-    Default: development
+    Default: network-test
+  VPCCidr:
+    Description: VPC Cidr block reference
+    Type: String
+    Default: 10.1.0.0/16
 
 Resources:
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow mysql connection inside vpc
+      VpcId: 
+        Fn::ImportValue:
+          !Sub ${NetworkStackName}-vpc
+      SecurityGroupIngress:
+        - 
+          IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !Ref VPCCidr
+      SecurityGroupEgress:
+        - 
+          IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !Ref VPCCidr
+
+  DbSecurityByEC2SecurityGroup:
+    Type: AWS::RDS::DBSecurityGroup
+    Properties:
+      GroupDescription: Description for the DB security group
+      DBSecurityGroupIngress:
+        - 
+          EC2SecurityGroupId: !Ref EC2SecurityGroup
+      EC2VpcId: 
+        Fn::ImportValue:
+          !Sub ${NetworkStackName}-vpc
+      Tags:
+        - 
+          Key: Name
+          Value: !Sub ${AWS::StackName}-db-sg
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: DB Subnet group
+      SubnetIds:
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-privsubA
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-privsubB
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-privsubC      
+
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -16,12 +67,14 @@ Resources:
       AllowMajorVersionUpgrade: true
       BackupRetentionPeriod: 7
       DBInstanceClass: db.t2.micro
+      DBInstanceIdentifier: !Sub ${AWS::StackName}
       Engine: mariadb
       EngineVersion: 10.3
-      MasterUsername: root
-      MasterUserPassword: thequickbrownfox
       MultiAZ: false
       PubliclyAccessible: false
-      Tags:
-        - Key: Name
-          Value: ${Environment}-${AWS::StackName}-db-instance
+      MasterUsername: root
+      MasterUserPassword: thequickbrownfox
+      DBSecurityGroups:
+        - !Ref DbSecurityByEC2SecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      
