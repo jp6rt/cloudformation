@@ -11,16 +11,17 @@ Parameters:
     Description: VPC Cidr block reference
     Type: String
     Default: 10.1.0.0/16
-  MasterUsername:
-    Description: DB Instance master username
-    Type: String
-    Default: root
-  MasterUserPassword:
-    Description: DB Instance master password
-    Type: String
-    Default: root
 
 Resources:
+  RDSSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: "This is a Secrets Manager secret for an RDS DB instance"
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "root"}'
+        GenerateStringKey: "password"
+        PasswordLength: 32
+
   DbSecurityByEC2SecurityGroup:
     Type: AWS::RDS::DBSecurityGroup
     Properties:
@@ -60,20 +61,33 @@ Resources:
       EngineVersion: 10.3
       MultiAZ: false
       PubliclyAccessible: false
-      MasterUsername: !Ref MasterUsername
-      MasterUserPassword: !Ref MasterUserPassword
+      MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref RDSSecret, ':SecretString:username}}' ]]
+      MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref RDSSecret, ':SecretString:password}}' ]]
       DBSecurityGroups:
         - !Ref DbSecurityByEC2SecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
+
+  SecretRDSInstanceAttachment:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId: !Ref RDSSecret
+      TargetId: !Ref RDSInstance
+      TargetType: AWS::RDS::DBInstance
       
 Outputs:
   EndpointAddress:
     Description: Database instance endpoint address
     Value: !GetAtt RDSInstance.Endpoint.Address
     Export:
-      Name: !Sub ${AWS::StackName}-rds-address
+      Name: !Sub ${AWS::StackName}-address
   EndpointPort:
     Description: Database instance endpoint port
     Value: !GetAtt RDSInstance.Endpoint.Port
     Export:
-      Name: !Sub ${AWS::StackName}-rds-port
+      Name: !Sub ${AWS::StackName}-port
+  SecretARN:
+    Description: RDS Secret Manager ARN
+    Value: !Ref RDSSecret
+    Export:
+      Name: !Sub ${AWS::StackName}-secret-arn
+      
