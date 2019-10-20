@@ -11,6 +11,14 @@ Parameters:
     Description: VPC Cidr block reference
     Type: String
     Default: 10.1.0.0/16
+  MasterUsername:
+    Description: DB Instance master username
+    Type: String
+    Default: root
+  MasterUserPassword:
+    Description: DB Instance master password
+    Type: String
+    Default: root
 
 Resources:
   DbSecurityByEC2SecurityGroup:
@@ -52,8 +60,8 @@ Resources:
       EngineVersion: 10.3
       MultiAZ: false
       PubliclyAccessible: false
-      MasterUsername: root
-      MasterUserPassword: thequickbrownfox
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterUserPassword
       DBSecurityGroups:
         - !Ref DbSecurityByEC2SecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
