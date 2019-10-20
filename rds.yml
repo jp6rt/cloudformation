@@ -58,3 +58,14 @@ Resources:
         - !Ref DbSecurityByEC2SecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
       
+Outputs:
+  EndpointAddress:
+    Description: Database instance endpoint address
+    Value: !GetAtt RDSInstance.Endpoint.Address
+    Export:
+      Name: !Sub ${AWS::StackName}-rds-address
+  EndpointPort:
+    Description: Database instance endpoint port
+    Value: !GetAtt RDSInstance.Endpoint.Port
+    Export:
+      Name: !Sub ${AWS::StackName}-rds-port
