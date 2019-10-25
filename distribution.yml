@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Describe the distribution
+
+Parameters:
+  BucketName:
+    Description: Bucket name
+    Type: String
+    Default: s3-static-test-jp6rt
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Ref BucketName
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+    DeletionPolicy: Retain
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Statement:
+          -
+            Action:
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource:
+              Fn::Join:
+                - ""
+                -
+                  - "arn:aws:s3:::"
+                  - !Ref S3Bucket
+                  - "/*"
+            Principal: "*"
+
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt [S3Bucket, WebsiteURL]
+    Description: URL for website hosted on S3
+    Export:
+      Name: !Sub ${AWS::StackName}-url
+  BucketName:
+    Value: !Ref BucketName
+    Description: Name of the bucket
+    Export:
+      Name: !Sub ${AWS::StackName}-bucket-name
