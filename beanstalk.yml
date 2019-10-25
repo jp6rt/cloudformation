@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Describe your beanstalk application architecture
+
+Resources:
+  BeanstalkApp:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: !Sub ${AWS::StackName}
+      Description: Beanstalk application
+
+Outputs:
+  BeanstalkApp:
+    Description: Reference to the created beanstalk app
+    Value: !Ref BeanstalkApp
+    Export:
+      Name: !Sub ${AWS::StackName}-app
