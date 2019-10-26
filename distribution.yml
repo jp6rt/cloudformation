@@ -18,6 +18,7 @@ Resources:
         IndexDocument: index.html
         ErrorDocument: index.html
     DeletionPolicy: Retain
+
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -36,15 +37,42 @@ Resources:
                   - !Ref S3Bucket
                   - "/*"
             Principal: "*"
+            
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          TargetOriginId: 0
+          ForwardedValues:
+            QueryString: true
+        Origins:
+          - 
+            Id: 0
+            DomainName: !GetAtt [S3Bucket, RegionalDomainName]
+            S3OriginConfig: 
+              OriginAccessIdentity: ""
 
 Outputs:
   WebsiteURL:
     Value: !GetAtt [S3Bucket, WebsiteURL]
     Description: URL for website hosted on S3
     Export:
-      Name: !Sub ${AWS::StackName}-url
+      Name: !Sub ${AWS::StackName}-web-url
   BucketName:
     Value: !Ref BucketName
     Description: Name of the bucket
     Export:
       Name: !Sub ${AWS::StackName}-bucket-name
+  DistributionDomainName:
+    Value: !GetAtt [Distribution, DomainName]
+    Description: Cloudfront distribution domain name
+    Export:
+      Name: !Sub ${AWS::StackName}-domain-name
+  DistributionID:
+    Value: !Ref Distribution
+    Description: Cloudfront distribution ID
+    Export:
+      Name: !Sub ${AWS::StackName}-id
