@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Describe your beanstalk application environment
+
+Parameters:
+  Environment:
+    Description: Name of beanstalk environment
+    Type: String
+    Default: Development
+  ApplicationStackName:
+    Description: Stack name of the beanstalk application
+    Type: String
+
+Resources:
+  BeanstalkEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: 
+        Fn::ImportValue:
+          !Sub ${ApplicationStackName}-app
+      EnvironmentName: !Ref Environment
+      Tags:
+        - 
+          Key: environment
+          Value: !Ref Environment
+
