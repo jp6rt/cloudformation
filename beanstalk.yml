@@ -14,4 +14,4 @@ Outputs:
     Description: Reference to the created beanstalk app
     Value: !Ref BeanstalkApp
     Export:
-      Name: !Sub ${AWS::StackName}-app
+      Name: !Sub ${AWS::StackName}
