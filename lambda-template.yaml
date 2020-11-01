@@ -1,0 +1,120 @@
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Lambda function invoked from API Gateway.
+
+Parameters:
+  Stage:
+    Type: String
+    Description: Stage name
+    Default: prod
+  BucketLayerName:
+    Type: String
+    Description: S3 Bucket where the layers are stored.
+    Default: arcanys-website-lambda-layers-bucket
+
+Resources:
+  FreemailLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs12.x
+        - nodejs10.x
+      LayerName: freemail-layer
+      Content:
+        S3Bucket: !Ref BucketLayerName
+        S3Key: freemail_layer.zip
+  FreemailFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      InlineCode: |
+        const freemail = require('freemail');
+
+        exports.handler = function(event, context, callback) {
+
+          const email = event.queryStringParameters.email;
+          const isFree = freemail.isFree(email);
+
+          const response = {
+            statusCode: 200,
+            body: JSON.stringify({
+              isFree,
+              email,
+            }),
+          };
+
+          callback(null, response);
+        };
+      Description: Checks if the passed email is a free email.
+      MemorySize: 128
+      Timeout: 8
+      Tracing: Active
+      Layers:
+        - !Ref FreemailLayer
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName: !GetAtt FreemailFn.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:execute-api:'
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: RestAPI
+            - "/*"
+  RestAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: FreemailAPI
+  CheckResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestAPI
+      ParentId: !GetAtt RestAPI.RootResourceId
+      PathPart: check
+  CheckGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestAPI
+      ResourceId: !Ref CheckResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Join:
+           - ''
+           - - 'arn:aws:apigateway:'
+             - Ref: AWS::Region
+             - ":lambda:path/2015-03-31/functions/"
+             - Fn::GetAtt:
+               - FreemailFn
+               - Arn
+             - "/invocations"
+  RestApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref RestAPI
+      StageName: !Ref Stage
+    DependsOn:
+      - CheckGet
+
+Outputs:
+  APIEndpoint:
+    Description: "API Endpoint"
+    Value:
+      Fn::Join:
+        - ''
+        - - 'https://'
+          - !Ref RestAPI
+          - '.execute-api.'
+          - !Ref AWS::Region
+          - '.amazonaws.com/'
+          - !Ref Stage
+          - '/'
